@@ -4,10 +4,10 @@ import { StyleSheet, Text, View, Button } from 'react-native';
 import 'config/ReactotronConfig';
 import 'config/DevToolsConfig';
 
+import Routes from 'routes';
 
-export default class App extends Component {
+const App = () => {
+  <Routes />
+};
 
-  render() {
-    return true;
-  }
-}
+export default App;
