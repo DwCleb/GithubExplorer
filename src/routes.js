@@ -1,13 +1,13 @@
-import { StackNavigator, TabNavigation } from 'react-navigation';
+import { StackNavigator, TabNavigator } from 'react-navigation';
 
 import Welcome from 'pages/welcome';
 import Repositories from 'pages/repositories';
 import Organizations from 'pages/organizations'; 
 
 const Routes = StackNavigator({
-  welcome: { screen: Welcome },
+  Welcome: { screen: Welcome },
   User: {
-    screen: TabNavigation({
+    screen: TabNavigator({
       Repositories: { screen: Repositories },
       Organizations: { screen: Organizations },
     }),

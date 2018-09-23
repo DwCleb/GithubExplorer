@@ -1,4 +1,4 @@
-package com.reactnativeapp;
+package com.githubexplorer;
 
 import android.app.Application;
 
