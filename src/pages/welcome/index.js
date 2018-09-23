@@ -11,6 +11,7 @@ import {
   TouchableOpacity,
   StatusBar,
   ActivityIndicator,
+  AsyncStorage,
 } from 'react-native';
 
 import styles from './styles';
@@ -27,7 +28,7 @@ export default class Welcome extends Component {
   };
 
   state = {
-    username: '',
+    username: null,
     loading: false,
     errorMessage: null,
   }
@@ -36,6 +37,10 @@ export default class Welcome extends Component {
     const user = await api.get(`/users/${username}`);
 
     return user;
+  }
+
+  saveUser = async (username) => {
+    await AsyncStorage.setItem('@GithubExplorer:username', username);
   }
 
   signIn = async () => {
@@ -47,6 +52,8 @@ export default class Welcome extends Component {
 
     try {
       await this.checkUserExists(username);
+
+      await this.saveUser(username);
 
       const resetAction = NavigationActions.reset({
         index: 0,
