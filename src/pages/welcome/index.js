@@ -1,41 +1,96 @@
-import React from 'react';
+import React, { Component  } from 'react';
+
+import { NavigationActions } from 'react-navigation';
+import PropTypes from 'prop-types';
+import api from 'services/api';
 
 import {
   View,
   Text,
   TextInput,
   TouchableOpacity,
-  StatusBar, 
+  StatusBar,
+  ActivityIndicator,
 } from 'react-native';
 
 import styles from './styles';
 
-const Welcome = () => (
-  <View style={styles.container}>
-    <StatusBar barStyle="light-content" />
-    <Text style={styles.title}>Welcome</Text>
-    <Text style={styles.text}>
-      To continue, we need that you enter with username
-    </Text>
+export default class Welcome extends Component {
+  static navigationOptions = {
+    header: null,
+  };
 
-    <View style={styles.form}>
-      <TextInput
-        style={styles.input}
-        autoCapitalize="none"
-        autoCorrect={false}
-        placeholder="Username"
-        underlineColorAndroid="rgba(0, 0, 0, 0)"
-      />
+  static propTypes = {
+    navigation: PropTypes.shape({
+      dispatch: PropTypes.func,
+    }).isRequired,
+  };
 
-      <TouchableOpacity style={styles.button} onPress={() => {}}>
-        <Text style={styles.buttonText}>Let`s do it!</Text>
-      </TouchableOpacity>
-    </View>
-  </View>
-);
+  state = {
+    username: '',
+    loading: false,
+    errorMessage: null,
+  }
 
-Welcome.navigationOptions = {
-  header: null,
-};
+  checkUserExists = async (username) => {
+    const user = await api.get(`/users/${username}`);
 
-export default Welcome;
+    return user;
+  }
+
+  signIn = async () => {
+    const { username } = this.state;
+
+    if (username.length === 0) return;
+
+    this.setState({ loading: true });
+
+    try {
+      await this.checkUserExists(username);
+
+      const resetAction = NavigationActions.reset({
+        index: 0,
+        actions: [
+          NavigationActions.navigate({ routeName: 'User' }),
+        ],
+      });
+      this.props.navigation.dispatch(resetAction);
+    } catch (error) {
+      // error
+      this.setState({ loading: false, errorMessage: 'User not found' });
+    }
+  };
+
+  render() {
+    return (
+      <View style={styles.container}>
+        <StatusBar barStyle="light-content" />
+        <Text style={styles.title}>Welcome</Text>
+        <Text style={styles.text}>
+          To continue, we need that you enter with username
+        </Text>
+
+        { !!this.state.errorMessage
+          && <Text style={styles.error}>{this.state.errorMessage}</Text>
+        }
+        <View style={styles.form}>
+          <TextInput
+            style={styles.input}
+            autoCapitalize="none"
+            autoCorrect={false}
+            placeholder="Username"
+            underlineColorAndroid="rgba(0, 0, 0, 0)"
+            value={this.state.username}
+            onChangeText={username => this.setState({ username })}
+          />
+          <TouchableOpacity style={styles.button} onPress={ this.signIn }>
+            { this.state.loading
+              ? <ActivityIndicator size="small" color="#FFF" />
+              : <Text style={styles.buttonText}> Let's do it!</Text>
+            }
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  }
+}
