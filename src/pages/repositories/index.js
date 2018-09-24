@@ -32,11 +32,18 @@ export default class Repositories extends Component {
   }
 
   loadRepositories = async () => {
-    this.setState({ refreshing: false });
-    const username = await AsyncStorage.getItem('@GithubExplorer:username');
-    const response = await api.get(`/users/${username}/repos`);
+    this.setState({ refreshing: true });
 
-    this.setState({ data: response.data, loading: false });
+    setTimeout( async () => {
+      const username = await AsyncStorage.getItem('@GithubExplorer:username');
+      const response = await api.get(`/users/${username}/repos`);
+
+      this.setState({
+        data: response.data,
+        loading: false,
+        refreshing: false,
+      });
+    }, 1500);
   }
 
   renderListItem = ({ item }) => <RepositoryItem repository={item} />
@@ -46,6 +53,8 @@ export default class Repositories extends Component {
       data={this.state.data}
       keyExtractor={item => String(item.id)}
       renderItem={this.renderListItem}
+      onRefresh={this.loadRepositories}
+      refreshing={this.state.refreshing}
     />
   )
 

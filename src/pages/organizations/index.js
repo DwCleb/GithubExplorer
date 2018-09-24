@@ -32,11 +32,18 @@ export default class Organizations extends Component {
   }
 
   loadOrganizations = async () => {
-    this.setState({ refreshing: false });
-    const username = await AsyncStorage.getItem('@GithubExplorer:username');
-    const response = await api.get(`/users/${username}/orgs`);
+    this.setState({ refreshing: true });
 
-    this.setState({ data: response.data, loading: false });
+    setTimeout( async() => {
+      const username = await AsyncStorage.getItem('@GithubExplorer:username');
+      const response = await api.get(`/users/${username}/orgs`);
+
+      this.setState({
+        data: response.data,
+        loading: false,
+        refreshing: false,
+      });
+    }, 1500);
   }
 
   renderListItem = ({ item }) => <OrganizationItem organization={item} />
@@ -48,6 +55,8 @@ export default class Organizations extends Component {
       renderItem={this.renderListItem}
       numColumns={2}
       columnWrapperStyle={styles.columnContainer}
+      onRefresh={this.loadOrganizations}
+      refreshing={this.state.refreshing}
     />
   )
 
